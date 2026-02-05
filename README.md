@@ -22,4 +22,17 @@ https://eden-36e95.web.app/
 - Favorite dishes functionality
 - Light and dark mode support
 
+## CRUDL Functionality
+- **Create**: placing orders by adding dishes to cart
+- **Read**: viewing menu items and order details
+- **Update**: modifying cart items and quantities
+- **Delete**: removing items from the cart
+- **List**: displaying all available dishes
+
+## Technologies Used
+- HTML5
+- CSS
+- JavaScript
+- Firebase Hosting
+- Firebase Firestore
 
