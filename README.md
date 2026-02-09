@@ -34,13 +34,6 @@ https://eden-36e95.web.app/
 - CSS
 - JavaScript
 - Firebase Hosting
-- Firebase Firestore
-
-## Project Status
-EDEN is currently developed as a **working MVP**.  
-The system architecture allows future expansion with:
-- AI-based recommendations  
-- Order analytics  
-- User behavior analysis  
+- Firebase Firestore 
 
 
