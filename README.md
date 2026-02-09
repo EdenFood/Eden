@@ -30,10 +30,14 @@ https://eden-36e95.web.app/
 - **List**: displaying all available dishes
 
 ## Technologies Used
-- HTML5
+- HTML
 - CSS
 - JavaScript
 - Firebase Hosting
-- Firebase Firestore 
+- Firebase Database
+
+## Project Status
+EDEN is developed as a working MVP. AI features and advanced analytics are not yet implemented and are planned for future development.
+
 
 
