@@ -1,0 +1,3535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eden — Food that understands you</title>
+ <!-- Favicon / logo in browser tab -->
+  <link rel="icon" href="data:image/svg+xml,
+  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+    <text y='.9em' font-size='90'>🌿</text>
+  </svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --mint: #a8e6cf;
+      --mint-dark: #8ed9b7;
+      --cream: #fff8f3;
+      --white: #ffffff;
+      --text: #2e2e2e;
+      --text-light: #666;
+      --accent: #ff6b6b;
+      --accent-dark: #ff5252;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    body {
+      background: var(--cream);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 80px;
+      animation: fadeIn 1s;
+    }
+
+    body.dark {
+      background: #111827;
+      color: #f9fafb;
+    }
+
+    body.dark header {
+      background: radial-gradient(circle at top left, #1f2937 0%, #020617 60%);
+    }
+
+    body.dark .menu-container,
+    body.dark .categories-container,
+    body.dark .diet-filters {
+      color: #e5e7eb;
+    }
+
+    body.dark .dish-card,
+    body.dark .cart,
+    body.dark .modal-content {
+      background: #020617;
+      color: #e5e7eb;
+    }
+
+    body.dark .dish-info p,
+    body.dark .tagline,
+    body.dark .cart-item-info p,
+    body.dark .review-text,
+    body.dark .review-date {
+      color: #9ca3af;
+    }
+
+    body.dark .cart-footer {
+      background: #020617;
+      border-top-color: #1f2937;
+    }
+
+    body.dark .diet-filter,
+    body.dark .category {
+      background: #020617;
+      color: #e5e7eb;
+    }
+
+    body.dark .diet-filter.active,
+    body.dark .category.active {
+      background: #111827;
+      border-color: #4b5563;
+    }
+
+    body.dark .search-container input {
+      background: #020617;
+      color: #e5e7eb;
+    }
+
+    body.dark .search-icon {
+      color: #6b7280;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--mint) 0%, #d4f1e6 100%);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      border-radius: 0 0 30px 30px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: visible;
+      z-index: 1;
+    }
+    
+    header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--accent), var(--mint-dark));
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .logo h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    .logo-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+    
+    .logo-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--mint-dark) 0%, var(--mint) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: white;
+      box-shadow: 0 4px 12px rgba(142, 217, 183, 0.4);
+      animation: pulse 2s infinite;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .logo-icon::before {
+      content: '🌿';
+      position: absolute;
+      font-size: 1.8rem;
+    }
+    
+    .logo-icon::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%);
+      border-radius: 12px;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    .tagline {
+      font-size: 1.1rem;
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+    }
+    
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+    
+    .auth-container {
+      display: none;
+    }
+    
+    .control-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      z-index: 200;
+      align-items: flex-end;
+    }
+    
+    .control-panel .pill-btn,
+    .control-panel .theme-toggle {
+      min-width: auto;
+    }
+    
+    .user-panel {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.6);
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      backdrop-filter: blur(8px);
+    }
+    
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--mint-dark);
+      background: #fff;
+    }
+    
+    .user-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      max-width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .logout-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-light);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 999px;
+      transition: var(--transition);
+    }
+    
+    .logout-btn:hover {
+      background: rgba(0,0,0,0.05);
+      color: var(--accent-dark);
+    }
+
+    .pill-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 0.35rem 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      background: rgba(255,255,255,0.7);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .pill-btn:hover {
+      transform: translateY(-1px);
+      background: #ffffff;
+    }
+
+    .pill-counter {
+      min-width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: var(--mint);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0 0.4rem;
+    }
+
+    body.dark .pill-btn {
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+    }
+
+    body.dark .pill-btn:hover {
+      background: #020617;
+    }
+
+    .theme-toggle {
+      border-radius: 999px;
+      border: none;
+      padding: 0.35rem 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      background: rgba(255,255,255,0.7);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: var(--transition);
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-1px);
+      background: #ffffff;
+    }
+
+    body.dark .theme-toggle {
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+    }
+
+    body.dark .theme-toggle:hover {
+      background: #020617;
+    }
+
+    .theme-toggle-icon {
+      font-size: 1rem;
+    }
+    
+    .search-container {
+      max-width: 500px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 10000;
+    }
+    
+    #search {
+      width: 100%;
+      padding: 1rem 1.5rem 1rem 3rem;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      background: var(--white);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transition: var(--transition);
+    }
+    
+    #search:focus {
+      outline: none;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 1.2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+    }
+    
+    .search-suggestions {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      right: 0;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 10001;
+      display: none;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    body.dark .search-suggestions {
+      background: #020617;
+      color: #e5e7eb;
+    }
+    
+    .suggestions-section {
+      padding: 1rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    body.dark .suggestions-section {
+      border-bottom-color: #1f2937;
+    }
+    
+    .suggestions-section:last-child {
+      border-bottom: none;
+    }
+    
+    .suggestions-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+      padding: 0 0.5rem;
+    }
+    
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 0.25rem;
+    }
+    
+    .suggestion-item:hover {
+      background: var(--mint);
+    }
+    
+    body.dark .suggestion-item:hover {
+      background: #1f2937;
+    }
+    
+    .suggestion-item img {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    
+    .suggestion-item-info {
+      flex: 1;
+    }
+    
+    .suggestion-item-name {
+      font-weight: 500;
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+    }
+    
+    .suggestion-item-price {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    .suggestion-item-recent {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 0.25rem;
+    }
+    
+    .suggestion-item-recent:hover {
+      background: var(--mint);
+    }
+    
+    body.dark .suggestion-item-recent:hover {
+      background: #1f2937;
+    }
+    
+    .suggestion-item-recent i {
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+    
+    .suggestion-item-recent span {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+    
+    .clear-recent {
+      color: var(--text-light);
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      text-align: center;
+      transition: var(--transition);
+    }
+    
+    .clear-recent:hover {
+      color: var(--accent);
+    }
+    
+    /* Categories */
+    .categories-container {
+      padding: 1.5rem;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+    }
+    
+    .categories-container::-webkit-scrollbar {
+      height: 4px;
+    }
+    
+    .categories-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    
+    .categories-container::-webkit-scrollbar-thumb {
+      background: var(--mint);
+      border-radius: 10px;
+    }
+    
+    .categories {
+      display: inline-flex;
+      gap: 0.8rem;
+      padding-bottom: 5px;
+    }
+    
+    .category {
+      background: var(--white);
+      border: 2px solid transparent;
+      border-radius: 50px;
+      padding: 0.7rem 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+    }
+    
+    .category:hover, .category.active {
+      background: var(--mint);
+      border-color: var(--mint-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+    
+    /* Menu */
+    .menu-container {
+      padding: 0 1.5rem 2rem;
+      min-height: 500px;
+    }
+    
+    .menu-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .menu {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .menu.fade-out {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    
+    .dish-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+      animation: cardAppear 0.5s ease forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    
+    @keyframes cardAppear {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .dish-tag {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--accent);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      z-index: 2;
+    }
+    
+    .dish-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    
+    .dish-card:hover img {
+      transform: scale(1.05);
+    }
+    
+    .dish-info {
+      padding: 1.2rem;
+    }
+    
+    .dish-info h3 {
+      margin: 0 0 0.5rem;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+    
+    .dish-info p {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .dish-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .dish-price {
+      color: var(--accent);
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    
+    .dish-kcal {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .dish-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .dish-rating .stars {
+      color: #ffc107;
+    }
+    
+    /* Quick add button */
+    .quick-add {
+      position: absolute;
+      bottom: -20px;
+      right: 15px;
+      background: var(--accent);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      opacity: 0;
+      transform: scale(0.8);
+      border: none;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    }
+    
+    .dish-card:hover .quick-add {
+      opacity: 1;
+      transform: scale(1);
+      bottom: 15px;
+    }
+    
+    /* Cart */
+    .cart-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--accent);
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+      z-index: 99;
+      transition: var(--transition);
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .cart-toggle:hover {
+      background: var(--accent-dark);
+      transform: scale(1.05);
+      animation: none;
+    }
+    
+    .cart-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--mint-dark);
+      color: var(--text);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: badgePulse 1.5s infinite;
+    }
+    
+    @keyframes badgePulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    .cart {
+      position: fixed;
+      bottom: 0;
+      right: -400px;
+      width: 100%;
+      max-width: 400px;
+      height: 80vh;
+      background: var(--white);
+      box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+      border-radius: 30px 0 0 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: right 0.4s ease;
+    }
+    
+    .cart.open {
+      right: 0;
+    }
+    
+    .cart-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .cart-header h3 {
+      font-size: 1.3rem;
+    }
+    
+    .close-cart {
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-light);
+    }
+    
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+    
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid #f5f5f5;
+      animation: slideInRight 0.3s ease;
+    }
+    
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+    
+    .cart-item-info h4 {
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    .cart-item-info p {
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+    
+    .cart-item-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .cart-item-qty {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .qty-btn {
+      background: var(--mint);
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+    
+    .qty-btn:hover {
+      background: var(--mint-dark);
+      transform: scale(1.1);
+    }
+    
+    .remove-item {
+      background: #ffebee;
+      color: var(--accent);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      margin-left: 5px;
+      transition: var(--transition);
+    }
+    
+    .remove-item:hover {
+      background: #ffcdd2;
+      transform: rotate(90deg);
+    }
+    
+    .cart-footer {
+      padding: 1.5rem;
+      border-top: 1px solid #eee;
+      background: #f9f9f9;
+      border-radius: 0 0 0 30px;
+    }
+    
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    
+    .checkout-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .checkout-btn:hover {
+      background: var(--accent-dark);
+      transform: translateY(-2px);
+    }
+    
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 1000;
+      animation: fadeIn 0.3s;
+    }
+    
+    .modal-content {
+      background: var(--white);
+      border-radius: 24px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideUp 0.4s;
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .modal-content img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 24px 24px 0 0;
+    }
+    
+    .modal-body {
+      padding: 1.5rem;
+    }
+    
+    .modal-body h2 {
+      margin-bottom: 0.8rem;
+      font-size: 1.8rem;
+    }
+    
+    .modal-body p {
+      margin-bottom: 1.2rem;
+      color: var(--text-light);
+    }
+    
+    .modal-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .modal-detail {
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: 12px;
+    }
+    
+    .modal-detail h4 {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+    
+    .modal-detail p {
+      margin: 0;
+      font-weight: 600;
+    }
+    
+    .close {
+      position: absolute;
+      top: 1rem;
+      right: 1.2rem;
+      background: rgba(255,255,255,0.9);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 2;
+      transition: var(--transition);
+    }
+    
+    .close:hover {
+      background: rgba(255,255,255,1);
+      transform: rotate(90deg);
+    }
+    
+    .add-to-cart-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .add-to-cart-btn:hover {
+      background: var(--accent-dark);
+    }
+    
+    /* Reviews */
+    .reviews-section {
+      margin: 1.5rem 0;
+      padding: 1rem 0;
+      border-top: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .reviews-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .reviews-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    
+    .add-review-btn {
+      background: var(--mint);
+      color: var(--text);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+    
+    .add-review-btn:hover {
+      background: var(--mint-dark);
+    }
+    
+    .reviews-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+    
+    .review-item {
+      padding: 0.8rem 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    
+    .review-item:last-child {
+      border-bottom: none;
+    }
+    
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .review-author {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    
+    .review-date {
+      color: var(--text-light);
+      font-size: 0.8rem;
+    }
+
+    .review-delete-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      cursor: pointer;
+      padding: 0.2rem;
+      border-radius: 999px;
+      transition: var(--transition);
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .review-delete-btn:hover {
+      background: #ffebee;
+      color: var(--accent-dark);
+    }
+    
+    .review-rating {
+      color: #ffc107;
+      margin-bottom: 0.3rem;
+    }
+    
+    .review-text {
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    
+    .no-reviews {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-light);
+    }
+
+    .reviews-clear-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+      margin-top: 0.25rem;
+    }
+
+    .reviews-clear-btn:hover {
+      color: var(--accent-dark);
+    }
+    
+    /* Review form */
+    .review-form {
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: 12px;
+      margin-top: 1rem;
+    }
+    
+    .review-form h4 {
+      margin-bottom: 0.8rem;
+      font-size: 1rem;
+    }
+    
+    .rating-input {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+    }
+    
+    .rating-input label {
+      cursor: pointer;
+    }
+
+    .rating-input label i {
+      font-size: 1.5rem;
+      color: #ddd;
+      transition: var(--transition);
+    }
+    
+    .rating-input label:hover i,
+    .rating-input label:hover ~ label i {
+      color: #ffc107;
+    }
+    
+    .rating-input input:checked ~ label i {
+      color: #ffc107;
+    }
+    
+    .rating-input input {
+      display: none;
+    }
+    
+    .review-form textarea {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      min-height: 80px;
+      resize: vertical;
+    }
+    
+    .review-form button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+    
+    .review-form button:hover {
+      background: var(--accent-dark);
+    }
+    
+    /* Checkout */
+    .checkout-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .checkout-form input,
+    .checkout-form textarea {
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+    
+    .checkout-form input:focus,
+    .checkout-form textarea:focus {
+      outline: none;
+      border-color: var(--mint);
+      box-shadow: 0 0 0 3px rgba(168, 230, 207, 0.2);
+    }
+    
+    .empty-cart {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-light);
+    }
+    
+    /* Order success */
+    .order-success {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+    
+    .order-success i {
+      font-size: 4rem;
+      color: var(--mint-dark);
+      margin-bottom: 1rem;
+      animation: successScale 0.5s ease;
+    }
+    
+    @keyframes successScale {
+      0% { transform: scale(0); }
+      70% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+    }
+    
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid var(--mint);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Diet filters */
+    .diet-filters {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1rem auto;
+      padding: 0 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .diet-filter {
+      background: var(--white);
+      border: 2px solid var(--mint);
+      border-radius: 50px;
+      padding: 0.5rem 1.2rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    
+    .diet-filter.active {
+      background: var(--mint);
+    }
+    
+    /* Floating action button for favorites */
+    .fab {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      background: var(--mint);
+      color: var(--text);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      z-index: 99;
+      transition: var(--transition);
+    }
+    
+    .fab:hover {
+      transform: scale(1.1);
+    }
+
+    /* Кнопка вверх */
+    .scroll-top {
+      position: fixed;
+      right: 20px;
+      bottom: 160px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: var(--white);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font-size: 1.2rem;
+      z-index: 98;
+      transition: var(--transition);
+    }
+
+    .scroll-top:hover {
+      transform: translateY(-3px);
+      background: var(--mint);
+    }
+
+    body.dark .scroll-top {
+      background: #020617;
+      color: #e5e7eb;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    /* Модальное окно для имени */
+    .name-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 2000;
+      animation: fadeIn 0.3s;
+    }
+    
+    .name-modal-content {
+      background: var(--white);
+      border-radius: 24px;
+      max-width: 400px;
+      width: 100%;
+      padding: 2rem;
+      position: relative;
+      animation: slideUp 0.4s;
+    }
+    
+    body.dark .name-modal-content {
+      background: #020617;
+      color: #e5e7eb;
+    }
+    
+    .name-modal-content h3 {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+    
+    .name-modal-content input {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid var(--mint);
+      border-radius: 12px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      transition: var(--transition);
+    }
+    
+    .name-modal-content input:focus {
+      outline: none;
+      border-color: var(--mint-dark);
+      box-shadow: 0 0 0 3px rgba(168, 230, 207, 0.2);
+    }
+    
+    .name-modal-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .name-modal-buttons button {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .name-modal-buttons .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .name-modal-buttons .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+    
+    .name-modal-buttons .btn-secondary {
+      background: var(--mint);
+      color: var(--text);
+    }
+    
+    .name-modal-buttons .btn-secondary:hover {
+      background: var(--mint-dark);
+    }
+    
+    /* Google Sign-In кнопка */
+    .google-signin-btn {
+      background: white;
+      border: 1px solid #dadce0;
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: #3c4043;
+      transition: var(--transition);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    
+    .google-signin-btn:hover {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      background: #f8f9fa;
+    }
+    
+    .google-signin-btn img {
+      width: 18px;
+      height: 18px;
+    }
+    
+    body.dark .google-signin-btn {
+      background: rgba(15,23,42,0.9);
+      border-color: #4b5563;
+      color: #e5e7eb;
+    }
+    
+    body.dark .google-signin-btn:hover {
+      background: #020617;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .menu {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+      
+      .cart {
+        max-width: 100%;
+        height: 85vh;
+      }
+      
+      .logo h1 {
+        font-size: 2rem;
+      }
+      
+      .fab {
+        bottom: 100px;
+      }
+      
+      .modal-details {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .menu {
+        grid-template-columns: 1fr;
+      }
+      
+      .categories-container {
+        padding: 1rem;
+      }
+      
+      .dish-card img {
+        height: 160px;
+      }
+      
+      .modal-content {
+        max-height: 95vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-wrapper">
+        <div class="logo-icon"></div>
+        <h1>Eden</h1>
+      </div>
+    </div>
+  </div>
+  <p class="tagline">Food that understands you</p>
+  <div class="search-container">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" id="search" placeholder="Search dishes, ingredients...">
+    <div class="search-suggestions" id="search-suggestions">
+      <div class="suggestions-section" id="popular-suggestions">
+        <div class="suggestions-title">Popular dishes</div>
+        <div id="popular-list"></div>
+      </div>
+      <div class="suggestions-section hidden" id="recent-searches-section">
+        <div class="suggestions-title">Recent searches</div>
+        <div id="recent-searches-list"></div>
+        <div class="clear-recent" onclick="clearRecentSearches()">Clear history</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Панель управления -->
+<div class="control-panel">
+  <button class="pill-btn" type="button" onclick="showOrders()">
+    <i class="fas fa-receipt"></i>
+    <span>Orders</span>
+    <span class="pill-counter" id="orders-count-header">0</span>
+  </button>
+  <button class="theme-toggle" type="button" onclick="toggleTheme()">
+    <span class="theme-toggle-icon" id="theme-icon">🌞</span>
+    <span id="theme-label">Light</span>
+  </button>
+  <button class="google-signin-btn hidden" id="google-signin-btn" type="button" onclick="signInWithGoogle()">
+    <svg width="18" height="18" viewBox="0 0 18 18">
+      <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+      <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.96-2.184l-2.908-2.258c-.806.54-1.837.86-3.052.86-2.35 0-4.34-1.587-5.052-3.72H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+      <path fill="#FBBC05" d="M3.948 10.698c-.18-.54-.282-1.117-.282-1.698s.102-1.158.282-1.698V4.97H.957C.348 6.175 0 7.55 0 9s.348 2.825.957 4.03l2.991-2.332z"/>
+      <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.97L3.948 7.302C4.66 5.167 6.65 3.58 9 3.58z"/>
+    </svg>
+    <span>Sign in</span>
+  </button>
+  <div id="user-panel" class="user-panel hidden">
+    <img id="user-avatar" class="user-avatar" src="" alt="">
+    <span id="user-name" class="user-name"></span>
+    <button class="logout-btn" onclick="signOut()">Logout</button>
+  </div>
+</div>
+
+<!-- Diet Filters -->
+<div class="diet-filters">
+  <button class="diet-filter active" data-filter="all">All</button>
+  <button class="diet-filter" data-filter="low-cal">🍃 < 300 kcal</button>
+  <button class="diet-filter" data-filter="vegetarian">🥬 Vegetarian</button>
+  <button class="diet-filter" data-filter="high-protein">💪 High protein</button>
+</div>
+
+<section class="categories-container">
+  <div class="categories">
+    <button class="category active" onclick="filterCat('all')">
+      <i class="fas fa-utensils"></i> All
+    </button>
+    <button class="category" onclick="filterCat('healthy')">
+      <i class="fas fa-heart"></i> Healthy
+    </button>
+    <button class="category" onclick="filterCat('spicy')">
+      <i class="fas fa-pepper-hot"></i> Spicy
+    </button>
+    <button class="category" onclick="filterCat('sushi')">
+      <i class="fas fa-fish"></i> Sushi
+    </button>
+    <button class="category" onclick="filterCat('pasta')">
+      <i class="fas fa-pasta"></i> Pasta
+    </button>
+    <button class="category" onclick="filterCat('vegan')">
+      <i class="fas fa-leaf"></i> Vegan
+    </button>
+    <button class="category" onclick="filterCat('dessert')">
+      <i class="fas fa-ice-cream"></i> Desserts
+    </button>
+    <button class="category" onclick="filterCat('breakfast')">
+      <i class="fas fa-egg"></i> Breakfast
+    </button>
+  </div>
+</section>
+
+<section class="menu-container">
+  <h2 class="menu-title" id="menu-title">
+    <i class="fas fa-fire"></i> Popular dishes
+  </h2>
+  <div class="menu" id="menu"></div>
+</section>
+
+<!-- Избранное -->
+<div class="fab" onclick="showFavorites()">
+  <i class="fas fa-heart"></i>
+</div>
+
+<!-- Кнопка вверх -->
+<button class="scroll-top hidden" id="scroll-top" type="button" onclick="scrollToTop()">
+  ↑
+</button>
+
+<!-- Корзина -->
+<div class="cart-toggle" onclick="toggleCart()">
+  <i class="fas fa-shopping-cart"></i>
+  <div class="cart-badge" id="cart-badge">0</div>
+</div>
+
+<div class="cart" id="cart">
+  <div class="cart-header">
+    <h3>Cart</h3>
+    <div class="close-cart" onclick="toggleCart()">
+      <i class="fas fa-times"></i>
+    </div>
+  </div>
+  
+  <div class="cart-items" id="cart-items">
+    <!-- Cart items will be here -->
+  </div>
+  
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total:</span>
+      <span id="cart-total">0 $</span>
+    </div>
+    <button class="checkout-btn" onclick="showCheckout()">
+      Checkout
+    </button>
+  </div>
+</div>
+
+<!-- Модальное окно блюда -->
+<div id="modal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img id="modal-img" src="" alt="">
+    <div class="modal-body">
+      <h2 id="modal-name"></h2>
+      <p id="modal-desc"></p>
+      
+      <div class="modal-details">
+        <div class="modal-detail">
+          <h4 id="modal-kcal-label">Calories</h4>
+          <p id="modal-kcal"></p>
+        </div>
+        <div class="modal-detail">
+          <h4 id="modal-weight-label">Weight</h4>
+          <p id="modal-weight"></p>
+        </div>
+        <div class="modal-detail">
+          <h4 id="modal-time-label">Time</h4>
+          <p id="modal-time"></p>
+        </div>
+        <div class="modal-detail">
+          <h4 id="modal-difficulty-label">Difficulty</h4>
+          <p id="modal-difficulty"></p>
+        </div>
+      </div>
+      
+      <div class="modal-detail">
+        <h4 id="modal-ingr-label">Ingredients</h4>
+        <p id="modal-ingr"></p>
+      </div>
+      
+      <!-- Reviews Section -->
+      <div class="reviews-section" id="reviews-section">
+        <div class="reviews-header">
+          <div class="reviews-title" id="reviews-title">Reviews (<span id="reviews-count">0</span>)</div>
+          <button class="add-review-btn" onclick="showReviewForm()" id="add-review-btn">
+            <i class="fas fa-plus"></i> <span id="add-review-text">Add review</span>
+          </button>
+        </div>
+        
+        <div class="reviews-list" id="reviews-list">
+          <!-- Reviews will be here -->
+        </div>
+
+        <button class="reviews-clear-btn" onclick="clearReviewsCurrentDish()" id="clear-reviews-btn">
+          Clear all reviews for this dish
+        </button>
+        
+        <div class="review-form hidden" id="review-form">
+          <h4 id="leave-review-title">Leave a review</h4>
+          <div class="rating-input">
+            <input type="radio" id="star5" name="rating" value="5">
+            <label for="star5"><i class="fas fa-star"></i></label>
+            <input type="radio" id="star4" name="rating" value="4">
+            <label for="star4"><i class="fas fa-star"></i></label>
+            <input type="radio" id="star3" name="rating" value="3">
+            <label for="star3"><i class="fas fa-star"></i></label>
+            <input type="radio" id="star2" name="rating" value="2">
+            <label for="star2"><i class="fas fa-star"></i></label>
+            <input type="radio" id="star1" name="rating" value="1">
+            <label for="star1"><i class="fas fa-star"></i></label>
+          </div>
+          <textarea id="review-text" placeholder="Share your opinion about the dish..."></textarea>
+          <button onclick="submitReview()" id="submit-review-btn">Submit review</button>
+        </div>
+      </div>
+      
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button class="add-to-cart-btn" onclick="addFromModal()" style="flex: 3;" id="modal-add-btn">
+          <i class="fas fa-cart-plus"></i> <span id="modal-add-text">Add</span>
+        </button>
+        <button class="add-to-cart-btn" onclick="toggleFavorite(currentDish.id)" style="flex: 1; background: #ffd166;">
+          <i class="fas fa-heart" id="modal-favorite-icon"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Оформление заказа -->
+<div id="checkout" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="closeCheckout()">&times;</span>
+    <div class="modal-body">
+      <h2>Checkout</h2>
+      <form class="checkout-form" onsubmit="submitOrder(event)">
+        <input type="text" id="name" placeholder="Your name" required>
+        <input type="tel" id="phone" placeholder="Phone" required>
+        <input type="text" id="address" placeholder="Delivery address" required>
+        <textarea id="comment" placeholder="Order comment" rows="3"></textarea>
+        <button type="submit" class="checkout-btn">
+          <i class="fas fa-check"></i> Confirm order
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Успешный заказ -->
+<div id="order-success" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-body order-success">
+      <i class="fas fa-check-circle"></i>
+      <h2>Order accepted!</h2>
+      <p id="order-success-message">Thank you for your order! We will contact you within 15 minutes.</p>
+      <p style="color: var(--text-light); margin-top: 1rem;">Your order number: <strong id="order-number"></strong></p>
+      <button class="add-to-cart-btn" onclick="closeOrderSuccess()" style="margin-top: 2rem;">
+        Continue shopping
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Избранное -->
+<div id="favorites-modal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="closeFavorites()">&times;</span>
+    <div class="modal-body">
+      <h2><i class="fas fa-heart" style="color: #ff6b6b;"></i> Favorites</h2>
+      <div id="favorites-list" style="margin-top: 1rem;">
+        <!-- Favorites will be here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- История заказов -->
+<div id="orders-modal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="closeOrders()">&times;</span>
+    <div class="modal-body">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem;">
+        <h2><i class="fas fa-receipt" style="color: var(--accent);"></i> Order history</h2>
+        <button type="button" class="reviews-clear-btn" onclick="clearOrders()">
+          Clear history
+        </button>
+      </div>
+      <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 0.3rem;">
+        Your recent orders on this device are saved here.
+      </p>
+      <div id="orders-list" style="margin-top: 1.2rem;">
+        <!-- Orders list -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно для ввода имени после входа -->
+<div id="name-modal" class="name-modal hidden">
+  <div class="name-modal-content">
+    <h3>What's your name?</h3>
+    <p style="color: var(--text-light); margin-bottom: 1rem; font-size: 0.9rem;">
+      Enter your name for personalization (you can skip this)
+    </p>
+    <input type="text" id="user-name-input" placeholder="Your name" maxlength="50">
+    <div class="name-modal-buttons">
+      <button class="btn-secondary" onclick="skipNameInput()">Skip</button>
+      <button class="btn-primary" onclick="saveUserName()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Расширенный список блюд с дополнительными свойствами
+  const menu = [
+    // Healthy dishes
+    {id:1, name:"Tomato basil soup", cat:"healthy", price:12, img:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500&auto=format&fit=crop", kcal:180, weight:"350g", time:"20 min", difficulty:"Easy", ingr:"Fresh tomatoes, basil, cream, onion, garlic", desc:"Light and warm soup for a cozy evening", protein: 8, vegetarian: true},
+    {id:2, name:"Greek salad", cat:"healthy", price:14, img:"https://th.bing.com/th/id/OIP.lRe5FT01yrcDIdJ0F3qaEwHaE8?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3", kcal:250, weight:"300g", time:"15 min", difficulty:"Easy", ingr:"Tomatoes, cucumbers, olives, feta, onion, olive oil", desc:"Classic Mediterranean salad", protein: 12, vegetarian: true},
+    {id:3, name:"Avocado toast with egg", cat:["healthy","breakfast"], price:11, img:"https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&auto=format&fit=crop", kcal:320, weight:"200g", time:"10 min", difficulty:"Easy", ingr:"Avocado, egg, whole grain bread, lemon juice", desc:"Perfect healthy breakfast", protein: 15, vegetarian: true},
+    {id:4, name:"Quinoa with vegetables", cat:"healthy", price:15, img:"https://images.unsplash.com/photo-1512058564366-18510be2db19?w=500&auto=format&fit=crop", kcal:380, weight:"350g", time:"25 min", difficulty:"Medium", ingr:"Quinoa, broccoli, carrots, zucchini, olive oil", desc:"Hearty and healthy dish", protein: 18, vegetarian: true, vegan: true},
+    {id:29, name:"Caesar salad", cat:"healthy", price:13, img:"https://images.unsplash.com/photo-1546793665-c74683f339c1?w=500&auto=format&fit=crop", kcal:320, weight:"280g", time:"15 min", difficulty:"Easy", ingr:"Romaine lettuce, parmesan, croutons, caesar dressing", desc:"Classic Caesar salad with crispy croutons", protein: 14},
+    {id:30, name:"Grilled chicken salad", cat:"healthy", price:16, img:"https://tse1.mm.bing.net/th/id/OIP.wwXXRcw7foBJJ30LUFgenwHaLH?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:380, weight:"350g", time:"25 min", difficulty:"Easy", ingr:"Grilled chicken, mixed greens, cherry tomatoes, balsamic", desc:"Fresh salad with tender grilled chicken", protein: 28},
+    {id:31, name:"Buddha bowl", cat:"healthy", price:14, img:"https://th.bing.com/th/id/OIP.dI-1V0GwbVY1AktPIw3GtQHaHx?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3", kcal:420, weight:"400g", time:"20 min", difficulty:"Easy", ingr:"Brown rice, chickpeas, sweet potato, tahini", desc:"Colorful and nutritious bowl", protein: 16, vegetarian: true, vegan: true},
+    
+    // Spicy dishes
+    {id:5, name:"Spicy ramen", cat:"spicy", price:18, img:"https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500&auto=format&fit=crop", kcal:520, weight:"450g", time:"30 min", difficulty:"Medium", ingr:"Noodles, beef, chili pepper, egg, green onion", desc:"Spicy ramen with meat and egg", protein: 25},
+    {id:6, name:"Spicy chicken tacos", cat:"spicy", price:13, img:"https://th.bing.com/th/id/R.8a441cb9aaacf146010c57b532f7d691?rik=faN%2foQoRTo%2fIFg&riu=http%3a%2f%2fonestophalal.com%2fcdn%2fshop%2farticles%2fspicy_chicken_taco_recipe-1695929046510_800x.jpg%3fv%3d1695929739&ehk=ZtUO7LM2NmZ%2bhwtOqqEVMALQbQx94Qov%2bK%2ffGTdJduU%3d&risl=&pid=ImgRaw&r=0", kcal:350, weight:"250g", time:"20 min", difficulty:"Easy", ingr:"Chicken, tortilla, salsa, sour cream, hot sauce", desc:"Mexican tacos with chicken", protein: 22},
+    {id:7, name:"Kimchi", cat:"spicy", price:8, img:"https://quiz.now/wp-content/uploads/2024/12/kimchi-quiz-1733921097.jpg", kcal:120, weight:"200g", time:"23 min", difficulty:"Hard", ingr:"Napa cabbage, chili pepper, garlic, ginger", desc:"Spicy Korean fermented side dish", protein: 5, vegetarian: true, vegan: true},
+    {id:8, name:"Tofu curry", cat:["spicy","vegan"], price:16, img:"https://tse4.mm.bing.net/th/id/OIP.H1qhFJXt1gL1lTIxutV1CwHaLH?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:420, weight:"400g", time:"35 min", difficulty:"Medium", ingr:"Tofu, coconut milk, curry paste, vegetables", desc:"Spicy vegan curry", protein: 20, vegetarian: true, vegan: true},
+    {id:32, name:"Buffalo wings", cat:"spicy", price:15, img:"https://th.bing.com/th/id/OIP.SCbeT5fdYksOgC3P4l_V3AHaE8?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3", kcal:450, weight:"300g", time:"25 min", difficulty:"Medium", ingr:"Chicken wings, buffalo sauce, blue cheese, celery", desc:"Crispy wings with spicy buffalo sauce", protein: 30},
+    {id:33, name:"Jalapeño poppers", cat:"spicy", price:10, img:"https://th.bing.com/th/id/R.356d792842e0b0d43ea1acef42b38cbc?rik=DkadjzzsFdv0yA&pid=ImgRaw&r=0", kcal:280, weight:"200g", time:"20 min", difficulty:"Easy", ingr:"Jalapeños, cream cheese, breadcrumbs, spices", desc:"Spicy stuffed jalapeños", protein: 8, vegetarian: true},
+    {id:34, name:"Pad Thai", cat:"spicy", price:17, img:"https://images.unsplash.com/photo-1559314809-0d155014e29e?w=500&auto=format&fit=crop", kcal:480, weight:"350g", time:"25 min", difficulty:"Medium", ingr:"Rice noodles, shrimp, bean sprouts, peanuts, lime", desc:"Classic Thai stir-fried noodles", protein: 22},
+    
+    // Sushi
+    {id:9, name:"Philadelphia roll", cat:"sushi", price:16, img:"https://th.bing.com/th/id/R.f824ef63a066fbc2ac16e47cf242503b?rik=7pLq255ySWUv9A&pid=ImgRaw&r=0", kcal:320, weight:"250g", time:"25 min", difficulty:"Medium", ingr:"Salmon, cream cheese, rice, nori, cucumber", desc:"Japanese cuisine classic", protein: 18},
+    {id:10, name:"California roll", cat:"sushi", price:14, img:"https://tse4.mm.bing.net/th/id/OIP.5iBu7ZYLEdWT52W8OXnLvAHaHa?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:290, weight:"230g", time:"20 min", difficulty:"Medium", ingr:"Crab, avocado, cucumber, tobiko roe, rice", desc:"Popular crab roll", protein: 15},
+    {id:11, name:"Salmon sashimi", cat:"sushi", price:22, img:"https://tse3.mm.bing.net/th/id/OIP.FD0ibDPgSu4cIfgCuYKb6gHaHa?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:220, weight:"180g", time:"15 min", difficulty:"Hard", ingr:"Fresh salmon, wasabi, soy sauce", desc:"Sliced fresh salmon", protein: 25},
+    {id:12, name:"Tempura roll", cat:"sushi", price:17, img:"https://th.bing.com/th/id/OIP.sP2RZqRqAWewyDCdEgJ-0gHaE_?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3", kcal:380, weight:"270g", time:"30 min", difficulty:"Hard", ingr:"Tempura shrimp, avocado, unagi sauce", desc:"Crispy tempura roll", protein: 20},
+    {id:35, name:"Dragon roll", cat:"sushi", price:19, img:"https://tse3.mm.bing.net/th/id/OIP.OFdIYo3XPaCW2gwbuW3SuQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:420, weight:"280g", time:"30 min", difficulty:"Hard", ingr:"Eel, cucumber, avocado, eel sauce, rice", desc:"Premium roll with grilled eel", protein: 24},
+    {id:36, name:"Tuna nigiri", cat:"sushi", price:20, img:"https://tse4.mm.bing.net/th/id/OIP.QJ8t2KLgMXyaPkcfl-N18wHaHa?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:180, weight:"120g", time:"15 min", difficulty:"Hard", ingr:"Fresh tuna, sushi rice, wasabi", desc:"Premium tuna over sushi rice", protein: 28},
+    {id:37, name:"Rainbow roll", cat:"sushi", price:18, img:"https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=500&auto=format&fit=crop", kcal:350, weight:"260g", time:"25 min", difficulty:"Medium", ingr:"Assorted fish, avocado, cucumber, rice", desc:"Colorful roll with mixed fish", protein: 20},
+    
+    // Pasta
+    {id:13, name:"Carbonara", cat:"pasta", price:17, img:"https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=500&auto=format&fit=crop", kcal:580, weight:"350g", time:"25 min", difficulty:"Medium", ingr:"Spaghetti, bacon, cream, parmesan, egg", desc:"Italian pasta with bacon", protein: 28},
+    {id:14, name:"Lasagna Bolognese", cat:"pasta", price:20, img:"https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=500&auto=format&fit=crop", kcal:650, weight:"400g", time:"45 min", difficulty:"Hard", ingr:"Lasagna sheets, ground meat, tomato sauce, cheese", desc:"Multi-layered Italian lasagna", protein: 32},
+    {id:15, name:"Pesto pasta", cat:"pasta", price:15, img:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=500&auto=format&fit=crop", kcal:480, weight:"320g", time:"20 min", difficulty:"Easy", ingr:"Pasta, pesto sauce, pine nuts, parmesan", desc:"Aromatic pasta with pesto sauce", protein: 20, vegetarian: true},
+    {id:16, name:"Fettuccine Alfredo", cat:"pasta", price:18, img:"https://th.bing.com/th/id/R.78a774b44a5673484d6160b6c610b5c7?rik=zoFJlVi9dw%2fX2w&pid=ImgRaw&r=0", kcal:520, weight:"350g", time:"30 min", difficulty:"Medium", ingr:"Fettuccine, cream sauce, chicken, parmesan", desc:"Creamy pasta with chicken", protein: 35},
+    {id:38, name:"Spaghetti aglio e olio", cat:"pasta", price:13, img:"https://th.bing.com/th/id/R.14613c5a9b45d160c4780cfde22800e4?rik=p%2b9EDRNMjZh5Ug&pid=ImgRaw&r=0", kcal:420, weight:"300g", time:"15 min", difficulty:"Easy", ingr:"Spaghetti, garlic, olive oil, parsley, red pepper", desc:"Simple and delicious Italian classic", protein: 12, vegetarian: true, vegan: true},
+    {id:39, name:"Penne arrabbiata", cat:"pasta", price:14, img:"https://tse2.mm.bing.net/th/id/OIP.e88Frv1MjRxT8kKwLEY7qgHaE8?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:450, weight:"320g", time:"20 min", difficulty:"Easy", ingr:"Penne, tomato sauce, garlic, red chili, parsley", desc:"Spicy tomato pasta", protein: 14, vegetarian: true, vegan: true},
+    {id:40, name:"Ravioli with ricotta", cat:"pasta", price:16, img:"https://tse2.mm.bing.net/th/id/OIP.t_Z5bDj3Aivqn9sIa58iGQHaJ4?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:480, weight:"300g", time:"30 min", difficulty:"Medium", ingr:"Ravioli, ricotta cheese, spinach, butter sauce", desc:"Delicate pasta pockets with ricotta", protein: 18, vegetarian: true},
+    
+    // Vegan dishes
+    {id:17, name:"Vegan bowl", cat:"vegan", price:14, img:"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&auto=format&fit=crop", kcal:420, weight:"400g", time:"20 min", difficulty:"Easy", ingr:"Quinoa, hummus, vegetables, avocado, seeds", desc:"Healthy and filling set", protein: 18, vegetarian: true, vegan: true},
+    {id:18, name:"Tikka masala", cat:["vegan","spicy"], price:16, img:"https://th.bing.com/th/id/R.45c48ea17c74a9b49b51083fc410ac55?rik=n59mDrwCh1i07Q&pid=ImgRaw&r=0", kcal:480, weight:"380g", time:"40 min", difficulty:"Medium", ingr:"Coconut milk, spices, tofu, vegetables", desc:"Indian classic in vegan version", protein: 22, vegetarian: true, vegan: true},
+    {id:19, name:"Vegan burgers", cat:"vegan", price:15, img:"https://th.bing.com/th/id/R.1eaec5d883647f7052ebb4ce53772cba?rik=XrbeBnnV8yovPw&pid=ImgRaw&r=0", kcal:450, weight:"300g", time:"30 min", difficulty:"Medium", ingr:"Black beans, beets, bun, vegetables", desc:"Juicy meat-free burgers", protein: 20, vegetarian: true, vegan: true},
+    {id:20, name:"Mushroom steak", cat:"vegan", price:13, img:"https://images.unsplash.com/photo-1594041680534-e8c8cdebd659?w=500&auto=format&fit=crop", kcal:280, weight:"250g", time:"25 min", difficulty:"Easy", ingr:"Portobello mushrooms, herbs, garlic, lemon", desc:"Portobello mushroom steak", protein: 15, vegetarian: true, vegan: true},
+    {id:41, name:"Vegan pad thai", cat:["vegan","spicy"], price:15, img:"https://tse1.mm.bing.net/th/id/OIP.b-b-htvG4vhRlXahJj6VGwHaHa?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:420, weight:"350g", time:"25 min", difficulty:"Medium", ingr:"Rice noodles, tofu, vegetables, tamarind sauce", desc:"Plant-based Thai noodles", protein: 18, vegetarian: true, vegan: true},
+    {id:42, name:"Lentil curry", cat:["vegan","spicy"], price:14, img:"https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&auto=format&fit=crop", kcal:380, weight:"350g", time:"35 min", difficulty:"Medium", ingr:"Red lentils, coconut milk, curry spices, vegetables", desc:"Hearty lentil curry", protein: 20, vegetarian: true, vegan: true},
+    {id:43, name:"Vegan pizza", cat:"vegan", price:16, img:"https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500&auto=format&fit=crop", kcal:520, weight:"400g", time:"30 min", difficulty:"Medium", ingr:"Pizza dough, tomato sauce, vegan cheese, vegetables", desc:"Delicious plant-based pizza", protein: 16, vegetarian: true, vegan: true},
+    
+    // Desserts
+    {id:21, name:"Tiramisu", cat:"dessert", price:12, img:"https://tse3.mm.bing.net/th/id/OIP.J__zr5QMc6p3voynKAnzbQHaE8?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:420, weight:"200g", time:"30 min", difficulty:"Medium", ingr:"Mascarpone, coffee, ladyfingers, cocoa", desc:"Classic Italian dessert", protein: 8, vegetarian: true},
+    {id:22, name:"New York cheesecake", cat:"dessert", price:14, img:"https://images.unsplash.com/photo-1578775887804-699de7086ff9?w=500&auto=format&fit=crop", kcal:450, weight:"220g", time:"60 min", difficulty:"Hard", ingr:"Cream cheese, cookies, cream, sugar", desc:"Famous New York cheesecake", protein: 10, vegetarian: true},
+    {id:23, name:"Strawberry mousse", cat:"dessert", price:10, img:"https://hipstamama.ru/wp-content/uploads/2020/06/eggless-strawberry-mousse-690x1034.jpg", kcal:280, weight:"180g", time:"25 min", difficulty:"Medium", ingr:"Strawberries, cream, gelatin, sugar", desc:"Airy fruit dessert", protein: 6, vegetarian: true},
+    {id:24, name:"Chocolate fondant", cat:"dessert", price:11, img:"https://tse3.mm.bing.net/th/id/OIP.Xe62S5zyHo677kkMlID2JgHaGn?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:380, weight:"150g", time:"20 min", difficulty:"Hard", ingr:"Dark chocolate, butter, eggs, flour", desc:"Chocolate dessert with liquid center", protein: 7, vegetarian: true},
+    {id:44, name:"Chocolate lava cake", cat:"dessert", price:11, img:"https://tse4.mm.bing.net/th/id/OIP.-2P0ncfi4i35dpkiNgyumAHaLI?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:420, weight:"160g", time:"25 min", difficulty:"Hard", ingr:"Dark chocolate, butter, eggs, flour, vanilla", desc:"Warm chocolate cake with molten center", protein: 8, vegetarian: true},
+    {id:45, name:"Apple pie", cat:"dessert", price:9, img:"https://th.bing.com/th/id/OIP.alxoF52zKgLFi5qFPv0ucQHaHU?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3", kcal:320, weight:"200g", time:"45 min", difficulty:"Medium", ingr:"Apples, pie crust, cinnamon, sugar, butter", desc:"Classic American apple pie", protein: 4, vegetarian: true},
+    {id:46, name:"Ice cream sundae", cat:"dessert", price:8, img:"https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=500&auto=format&fit=crop", kcal:350, weight:"250g", time:"5 min", difficulty:"Easy", ingr:"Vanilla ice cream, chocolate sauce, whipped cream, cherry", desc:"Classic ice cream sundae", protein: 6, vegetarian: true},
+    
+    // Breakfast
+    {id:25, name:"American pancakes", cat:"breakfast", price:11, img:"https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&auto=format&fit=crop", kcal:480, weight:"300g", time:"20 min", difficulty:"Easy", ingr:"Flour, eggs, milk, maple syrup", desc:"Fluffy pancakes with syrup", protein: 12, vegetarian: true},
+    {id:26, name:"Smoothie bowl", cat:["breakfast","healthy"], price:10, img:"https://tse3.mm.bing.net/th/id/OIP.FlAczh7fqHhZu_uRCzLnRwHaLH?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:320, weight:"350g", time:"10 min", difficulty:"Easy", ingr:"Bananas, berries, oatmeal, nuts, honey", desc:"Healthy and bright breakfast", protein: 10, vegetarian: true, vegan: true},
+    {id:27, name:"Vegetable omelet", cat:"breakfast", price:12, img:"https://tse3.mm.bing.net/th/id/OIP.o63tcSfmC77qZnkiAaWtLAHaLH?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:320, weight:"280g", time:"15 min", difficulty:"Easy", ingr:"Eggs, tomatoes, bell pepper, herbs", desc:"Hearty vegetable omelet", protein: 22, vegetarian: true},
+    {id:28, name:"French toast", cat:"breakfast", price:9, img:"https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=500&auto=format&fit=crop", kcal:350, weight:"250g", time:"15 min", difficulty:"Easy", ingr:"Bread, eggs, milk, cinnamon, sugar", desc:"Sweet French-style toast", protein: 14, vegetarian: true},
+    {id:47, name:"Eggs Benedict", cat:"breakfast", price:15, img:"https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&auto=format&fit=crop", kcal:520, weight:"300g", time:"25 min", difficulty:"Medium", ingr:"Poached eggs, English muffin, ham, hollandaise", desc:"Classic brunch favorite", protein: 24},
+    {id:48, name:"Belgian waffles", cat:"breakfast", price:12, img:"https://th.bing.com/th/id/OIP.QMW30y0xZJIOHBZEyc2RqgHaHa?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3", kcal:450, weight:"280g", time:"20 min", difficulty:"Easy", ingr:"Waffle batter, butter, maple syrup, berries", desc:"Crispy Belgian-style waffles", protein: 10, vegetarian: true},
+    {id:49, name:"Breakfast burrito", cat:"breakfast", price:13, img:"https://tse4.mm.bing.net/th/id/OIP.HekGeIc20HeCtHAk40NKdgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3", kcal:480, weight:"350g", time:"20 min", difficulty:"Easy", ingr:"Tortilla, scrambled eggs, bacon, cheese, salsa", desc:"Hearty breakfast wrap", protein: 20},
+  ];
+
+  let cart = JSON.parse(localStorage.getItem('edenCart')) || [];
+  let favorites = JSON.parse(localStorage.getItem('edenFavorites')) || [];
+  // Глобальный кэш отзывов. Основной источник теперь Firestore,
+  // а localStorage используется только как локальный кеш.
+  let reviews = {};
+  let currentDish = null;
+  let currentCategory = 'all';
+  let currentDietFilter = 'all';
+  let currentUser = JSON.parse(localStorage.getItem('edenUser')) || null;
+  let currentTheme = localStorage.getItem('edenTheme') || 'light';
+
+  // -------- Авторизация через Google (Firebase) --------
+  async function signInWithGoogle() {
+    try {
+      // Проверяем, что Firebase инициализирован
+      if (!window.firebaseAuth || !window.firebaseSignInWithPopup || !window.googleProvider) {
+        showNotification('Firebase не инициализирован. Проверьте конфигурацию.');
+        return;
+      }
+
+      // Вход через Google с помощью Firebase
+      const result = await window.firebaseSignInWithPopup(window.firebaseAuth, window.googleProvider);
+      const user = result.user;
+      
+      // Создаем объект пользователя из Firebase данных
+      const firebaseUser = {
+        uid: user.uid,
+        name: user.displayName || 'User',
+        email: user.email,
+        picture: user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || 'User') + '&background=a8e6cf&color=2e2e2e&size=128'
+      };
+      
+      setCurrentUser(firebaseUser);
+      
+      // Проверяем, есть ли уже сохраненное имя
+      const savedName = localStorage.getItem('edenUserName');
+      if (!savedName && user.displayName) {
+        localStorage.setItem('edenUserName', user.displayName);
+      }
+      
+      if (savedName || user.displayName) {
+        showNotification(`Welcome, ${savedName || user.displayName}!`);
+      } else {
+        // Показываем модальное окно для ввода имени, если его нет
+        showNameModal();
+      }
+    } catch (error) {
+      console.error('Ошибка входа:', error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        showNotification('Вход отменен');
+      } else {
+        showNotification('Ошибка входа: ' + error.message);
+      }
+    }
+  }
+
+  function setCurrentUser(user) {
+    currentUser = user;
+    localStorage.setItem('edenUser', JSON.stringify(user));
+    updateAuthUI();
+  }
+
+  function signOut() {
+    // Выход из Firebase
+    if (window.firebaseAuth && window.firebaseSignOut) {
+      window.firebaseSignOut(window.firebaseAuth).then(() => {
+        currentUser = null;
+        localStorage.removeItem('edenUser');
+        updateAuthUI();
+        showNotification('You have logged out');
+      }).catch((error) => {
+        console.error('Ошибка выхода:', error);
+        // Все равно очищаем локальные данные
+        currentUser = null;
+        localStorage.removeItem('edenUser');
+        updateAuthUI();
+        showNotification('You have logged out');
+      });
+    } else {
+      // Fallback если Firebase не инициализирован
+      currentUser = null;
+      localStorage.removeItem('edenUser');
+      updateAuthUI();
+      showNotification('You have logged out');
+    }
+  }
+
+  function updateAuthUI() {
+    const userPanel = document.getElementById('user-panel');
+    const userNameEl = document.getElementById('user-name');
+    const avatarEl = document.getElementById('user-avatar');
+    const googleSigninBtn = document.getElementById('google-signin-btn');
+
+    if (!userPanel || !googleSigninBtn) return;
+
+    if (currentUser) {
+      userPanel.classList.remove('hidden');
+      googleSigninBtn.classList.add('hidden');
+      const savedName = localStorage.getItem('edenUserName') || currentUser.name || 'Пользователь';
+      userNameEl.textContent = savedName;
+      if (currentUser.picture) {
+        avatarEl.src = currentUser.picture;
+        avatarEl.classList.remove('hidden');
+      } else {
+        avatarEl.src = '';
+        avatarEl.classList.add('hidden');
+      }
+    } else {
+      userPanel.classList.add('hidden');
+      googleSigninBtn.classList.remove('hidden');
+    }
+  }
+
+  // Модальное окно для ввода имени
+  function showNameModal() {
+    const modal = document.getElementById('name-modal');
+    const input = document.getElementById('user-name-input');
+    if (modal && input) {
+      modal.classList.remove('hidden');
+      input.value = '';
+      input.focus();
+      
+      // Сохранение по Enter
+      input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          saveUserName();
+        }
+      });
+    }
+  }
+
+  function closeNameModal() {
+    const modal = document.getElementById('name-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+    }
+  }
+
+  function saveUserName() {
+    const input = document.getElementById('user-name-input');
+    const name = input ? input.value.trim() : '';
+    
+    if (name) {
+      localStorage.setItem('edenUserName', name);
+      if (currentUser) {
+        currentUser.name = name;
+        localStorage.setItem('edenUser', JSON.stringify(currentUser));
+      }
+      updateAuthUI();
+      showNotification(`Name saved: ${name}`);
+    } else {
+      showNotification('Name not entered');
+    }
+    
+    closeNameModal();
+  }
+
+  function skipNameInput() {
+    closeNameModal();
+    showNotification('Sign in successful. You can enter your name later.');
+  }
+
+  // -------- Тема (светлая / тёмная) --------
+  function applyTheme() {
+    const body = document.body;
+    const icon = document.getElementById('theme-icon');
+    const label = document.getElementById('theme-label');
+
+    if (!icon || !label) return;
+
+    if (currentTheme === 'dark') {
+      body.classList.add('dark');
+      icon.textContent = '🌙';
+      label.textContent = 'Dark theme';
+    } else {
+      body.classList.remove('dark');
+      icon.textContent = '🌞';
+      label.textContent = 'Light theme';
+    }
+  }
+
+  function toggleTheme() {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('edenTheme', currentTheme);
+    applyTheme();
+  }
+
+
+  // Сохранение данных
+  function saveCart() {
+    localStorage.setItem('edenCart', JSON.stringify(cart));
+  }
+
+  function saveFavorites() {
+    localStorage.setItem('edenFavorites', JSON.stringify(favorites));
+  }
+
+  function saveReviews() {
+    localStorage.setItem('edenReviews', JSON.stringify(reviews));
+  }
+
+  // Анимация смены контента
+  function animateMenuChange(newContentFunction) {
+    const menuElement = document.getElementById('menu');
+    menuElement.classList.add('fade-out');
+    
+    setTimeout(() => {
+      newContentFunction();
+      menuElement.classList.remove('fade-out');
+      
+      // Анимация появления карточек
+      const cards = document.querySelectorAll('.dish-card');
+      cards.forEach((card, i) => {
+        card.style.animationDelay = `${i * 0.05}s`;
+        card.style.animation = 'cardAppear 0.4s ease forwards';
+      });
+    }, 300);
+  }
+
+  // Функция для получения среднего рейтинга блюда
+  function getAverageRating(dishId) {
+    if (!reviews[dishId] || reviews[dishId].length === 0) return 0;
+    
+    const total = reviews[dishId].reduce((sum, review) => sum + review.rating, 0);
+    return (total / reviews[dishId].length).toFixed(1);
+  }
+
+  // --- Работа с отзывами через Firebase Firestore ---
+  async function syncReviewsFromDb() {
+    if (!window.firebaseDb) {
+      // Firebase ещё не инициализирован или недоступен
+      return;
+    }
+
+    try {
+      const colRef = window.firebaseCollection
+        ? window.firebaseCollection(window.firebaseDb, 'reviews')
+        : window.firebaseDb.collection('reviews');
+
+      const snap = await (window.firebaseGetDocs
+        ? window.firebaseGetDocs(colRef)
+        : colRef.get());
+
+      const loadedReviews = {};
+
+      snap.forEach(doc => {
+        const data = doc.data();
+        if (!data || typeof data.dishId === 'undefined') return;
+
+        const dishId = data.dishId;
+        if (!loadedReviews[dishId]) {
+          loadedReviews[dishId] = [];
+        }
+
+        let isoDate;
+        const createdAt = data.createdAt;
+        if (createdAt && typeof createdAt.toDate === 'function') {
+          isoDate = createdAt.toDate().toISOString();
+        } else if (typeof createdAt === 'string') {
+          isoDate = createdAt;
+        } else {
+          isoDate = new Date().toISOString();
+        }
+
+        loadedReviews[dishId].push({
+          id: doc.id,
+          author: data.author || 'Anonymous user',
+          rating: Number(data.rating) || 0,
+          text: data.text || '',
+          date: isoDate
+        });
+      });
+
+      reviews = loadedReviews;
+
+      // Кэшируем в localStorage как офлайн‑кеш
+      saveReviews();
+
+      // Обновляем меню, чтобы показать средние рейтинги
+      renderMenu();
+    } catch (err) {
+      console.error('Error loading reviews from Firestore:', err);
+    }
+  }
+
+  async function saveReviewToDb(dishId, review) {
+    if (!window.firebaseDb) return null;
+
+    try {
+      const colRef = window.firebaseCollection
+        ? window.firebaseCollection(window.firebaseDb, 'reviews')
+        : window.firebaseDb.collection('reviews');
+
+      const payload = {
+        dishId,
+        author: review.author,
+        rating: review.rating,
+        text: review.text,
+        createdAt: window.firebaseServerTimestamp
+          ? window.firebaseServerTimestamp()
+          : new Date().toISOString()
+      };
+
+      const docRef = await (window.firebaseAddDoc
+        ? window.firebaseAddDoc(colRef, payload)
+        : colRef.add(payload));
+
+      return docRef && docRef.id ? docRef.id : null;
+    } catch (err) {
+      console.error('Error saving review to Firestore:', err);
+      throw err;
+    }
+  }
+
+  async function deleteReviewFromDb(reviewId) {
+    if (!window.firebaseDb || !reviewId) return;
+
+    try {
+      await window.firebaseDb.collection('reviews').doc(reviewId).delete();
+    } catch (err) {
+      console.error('Error deleting review from Firestore:', err);
+    }
+  }
+
+  async function clearReviewsForDishInDb(dishId) {
+    if (!window.firebaseDb || !dishId) return;
+
+    try {
+      const colRef = window.firebaseCollection
+        ? window.firebaseCollection(window.firebaseDb, 'reviews')
+        : window.firebaseDb.collection('reviews');
+
+      const queryRef = (window.firebaseQuery && window.firebaseWhere)
+        ? window.firebaseQuery(colRef, window.firebaseWhere('dishId', '==', dishId))
+        : colRef.where('dishId', '==', dishId);
+
+      const snap = await (window.firebaseGetDocs
+        ? window.firebaseGetDocs(queryRef)
+        : queryRef.get());
+
+      if (window.firebaseDb.batch) {
+        const batch = window.firebaseDb.batch();
+        snap.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+      } else {
+        const promises = [];
+        snap.forEach(doc => {
+          promises.push(doc.ref.delete());
+        });
+        await Promise.all(promises);
+      }
+    } catch (err) {
+      console.error('Error clearing reviews in Firestore for dish', dishId, err);
+    }
+  }
+
+  // Функция для отображения звезд рейтинга
+  function renderStars(rating) {
+    let stars = '';
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        stars += '<i class="fas fa-star"></i>';
+      } else if (i === fullStars && hasHalfStar) {
+        stars += '<i class="fas fa-star-half-alt"></i>';
+      } else {
+        stars += '<i class="far fa-star"></i>';
+      }
+    }
+    return stars;
+  }
+
+  // Рендер меню
+  function renderMenu(list = menu) {
+    const container = document.getElementById('menu');
+    container.innerHTML = '';
+    
+    if (list.length === 0) {
+      container.innerHTML = '<div class="empty-cart"><p>Dishes not found. Try changing your search query.</p></div>';
+      return;
+    }
+    
+    list.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'dish-card';
+      
+      // Определяем тег
+      let tag = '';
+      if (item.cat === 'healthy') tag = '🥗 Healthy';
+      else if (item.cat === 'spicy') tag = '🌶 Spicy';
+      else if (item.cat === 'vegan') tag = '🌱 Vegan';
+      else if (Array.isArray(item.cat) && item.cat.includes('vegan')) tag = '🌱 Vegan';
+      
+      // Проверяем, в избранном ли блюдо
+      const isFavorite = favorites.includes(item.id);
+      
+      // Получаем рейтинг блюда
+      const avgRating = getAverageRating(item.id);
+      
+      card.innerHTML = `
+        ${tag ? `<div class="dish-tag">${tag}</div>` : ''}
+        <img src="${item.img}" alt="${item.name}">
+        <div class="dish-info">
+          <h3>${item.name}</h3>
+          <p>${item.desc}</p>
+          ${avgRating > 0 ? `
+            <div class="dish-rating">
+              <span class="stars">${renderStars(avgRating)}</span>
+              <span>${avgRating}</span>
+            </div>
+          ` : ''}
+            <div class="dish-footer">
+            <div class="dish-price">${item.price} $</div>
+            <div class="dish-kcal"><i class="fas fa-fire"></i> ${item.kcal} kcal</div>
+          </div>
+        </div>
+        <button class="quick-add" onclick="addToCart(${item.id})">
+          <i class="fas fa-plus"></i>
+        </button>
+      `;
+      
+      card.onclick = (e) => {
+        if (!e.target.closest('.quick-add')) {
+          showModal(item);
+        }
+      };
+      container.appendChild(card);
+    });
+    
+    // Обновляем заголовок
+    updateMenuTitle();
+  }
+
+  function updateMenuTitle() {
+    const title = document.getElementById('menu-title');
+    if (currentCategory === 'all' && currentDietFilter === 'all') {
+      title.innerHTML = '<i class="fas fa-fire"></i> Popular dishes';
+    } else {
+      const categoryNames = {
+        'healthy': '🥗 Healthy',
+        'spicy': '🌶 Spicy',
+        'sushi': '🍣 Sushi',
+        'pasta': '🍝 Pasta',
+        'vegan': '🌱 Vegan',
+        'dessert': '🍰 Desserts',
+        'breakfast': '🍳 Breakfast'
+      };
+      
+      const dietFilterNames = {
+        'all': '',
+        'low-cal': '🍃 Low calorie',
+        'vegetarian': '🥬 Vegetarian',
+        'high-protein': '💪 High protein'
+      };
+      
+      let titleText = '';
+      if (currentCategory !== 'all') {
+        titleText = categoryNames[currentCategory] || currentCategory;
+      }
+      if (currentDietFilter !== 'all') {
+        if (titleText) titleText += ' • ';
+        titleText += dietFilterNames[currentDietFilter];
+      }
+      
+      title.innerHTML = `<i class="fas fa-${getCategoryIcon(currentCategory)}"></i> ${titleText || 'All'}`;
+    }
+  }
+
+  function getCategoryIcon(cat) {
+    const icons = {
+      'healthy': 'heart',
+      'spicy': 'pepper-hot',
+      'sushi': 'fish',
+      'pasta': 'utensils',
+      'vegan': 'leaf',
+      'dessert': 'ice-cream',
+      'breakfast': 'egg'
+    };
+    return icons[cat] || 'utensils';
+  }
+
+  // Фильтрация по категориям - исправленная версия
+  function filterCat(cat) {
+    currentCategory = cat;
+    
+    // Обновляем активную кнопку категорий
+    document.querySelectorAll('.category').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Применяем фильтры с анимацией
+    animateMenuChange(() => {
+      applyFilters();
+    });
+  }
+
+  // Диетические фильтры
+  function setupDietFilters() {
+    document.querySelectorAll('.diet-filter').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.diet-filter').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        currentDietFilter = e.target.dataset.filter;
+        
+        // Применяем фильтры с анимацией
+        animateMenuChange(() => {
+          applyFilters();
+        });
+      });
+    });
+  }
+
+  function applyFilters() {
+    let filtered = menu;
+    
+    // Применяем категорийный фильтр
+    if (currentCategory !== 'all') {
+      filtered = filtered.filter(i => 
+        i.cat === currentCategory || (Array.isArray(i.cat) && i.cat.includes(currentCategory))
+      );
+    }
+    
+    // Применяем диетический фильтр
+    if (currentDietFilter !== 'all') {
+      switch (currentDietFilter) {
+        case 'low-cal':
+          filtered = filtered.filter(i => i.kcal < 300);
+          break;
+        case 'vegetarian':
+          filtered = filtered.filter(i => i.vegetarian);
+          break;
+        case 'high-protein':
+          filtered = filtered.filter(i => i.protein > 20);
+          break;
+      }
+    }
+    
+    renderMenu(filtered);
+  }
+
+  // Функции для подсказок поиска
+  function getPopularDishes() {
+    // Получаем топ-6 популярных блюд (можно изменить логику)
+    return menu.slice(0, 6);
+  }
+  
+  function renderPopularSuggestions() {
+    const popularList = document.getElementById('popular-list');
+    if (!popularList) return;
+    
+    const popular = getPopularDishes();
+    let html = '';
+    popular.forEach(item => {
+      html += `
+        <div class="suggestion-item" onclick="selectSuggestion('${item.name}')">
+          <img src="${item.img}" alt="${item.name}">
+          <div class="suggestion-item-info">
+            <div class="suggestion-item-name">${item.name}</div>
+            <div class="suggestion-item-price">${item.price} $</div>
+          </div>
+        </div>
+      `;
+    });
+    popularList.innerHTML = html;
+  }
+  
+  function renderRecentSearches() {
+    const recentList = document.getElementById('recent-searches-list');
+    const recentSection = document.getElementById('recent-searches-section');
+    if (!recentList || !recentSection) return;
+    
+    const recent = JSON.parse(localStorage.getItem('edenRecentSearches')) || [];
+    
+    if (recent.length === 0) {
+      recentSection.classList.add('hidden');
+      return;
+    }
+    
+    recentSection.classList.remove('hidden');
+    let html = '';
+    recent.slice(0, 5).forEach(term => {
+      html += `
+        <div class="suggestion-item-recent" onclick="selectSuggestion('${term}')">
+          <i class="fas fa-clock"></i>
+          <span>${term}</span>
+        </div>
+      `;
+    });
+    recentList.innerHTML = html;
+  }
+  
+  function addToRecentSearches(term) {
+    if (!term || term.trim() === '') return;
+    
+    let recent = JSON.parse(localStorage.getItem('edenRecentSearches')) || [];
+    term = term.trim();
+    
+    // Удаляем если уже есть
+    recent = recent.filter(t => t.toLowerCase() !== term.toLowerCase());
+    
+    // Добавляем в начало
+    recent.unshift(term);
+    
+    // Ограничиваем до 10
+    recent = recent.slice(0, 10);
+    
+    localStorage.setItem('edenRecentSearches', JSON.stringify(recent));
+  }
+  
+  function clearRecentSearches() {
+    event.stopPropagation();
+    localStorage.removeItem('edenRecentSearches');
+    renderRecentSearches();
+  }
+  
+  function selectSuggestion(term) {
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+      searchInput.value = term;
+      searchInput.dispatchEvent(new Event('input'));
+    }
+    hideSuggestions();
+  }
+  
+  function showSuggestions() {
+    const suggestions = document.getElementById('search-suggestions');
+    const popularSection = document.getElementById('popular-suggestions');
+    if (suggestions) {
+      suggestions.style.display = 'block';
+      // Убеждаемся, что заголовок правильный
+      const popularTitle = popularSection ? popularSection.querySelector('.suggestions-title') : null;
+      if (popularTitle) {
+        popularTitle.textContent = 'Popular dishes';
+      }
+      renderPopularSuggestions();
+      renderRecentSearches();
+    }
+  }
+  
+  function hideSuggestions() {
+    const suggestions = document.getElementById('search-suggestions');
+    if (suggestions) {
+      suggestions.style.display = 'none';
+    }
+  }
+  
+  function renderSearchSuggestions(query) {
+    const suggestions = document.getElementById('search-suggestions');
+    const popularSection = document.getElementById('popular-suggestions');
+    const recentSection = document.getElementById('recent-searches-section');
+    
+    if (!suggestions) return;
+    
+    if (!query || query.trim() === '') {
+      // Показываем популярные и последние поиски
+      const popularTitle = popularSection.querySelector('.suggestions-title');
+      if (popularTitle) {
+        popularTitle.textContent = 'Popular dishes';
+      }
+      showSuggestions();
+      return;
+    }
+    
+    // Ищем совпадения
+    const matches = menu.filter(i => 
+      i.name.toLowerCase().includes(query.toLowerCase()) || 
+      i.desc.toLowerCase().includes(query.toLowerCase()) ||
+      i.ingr.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 5);
+    
+    if (matches.length > 0) {
+      const popularList = document.getElementById('popular-list');
+      if (popularList) {
+        let html = '';
+        matches.forEach(item => {
+          html += `
+            <div class="suggestion-item" onclick="selectSuggestion('${item.name}')">
+              <img src="${item.img}" alt="${item.name}">
+              <div class="suggestion-item-info">
+                <div class="suggestion-item-name">${item.name}</div>
+                <div class="suggestion-item-price">${item.price} $</div>
+              </div>
+            </div>
+          `;
+        });
+        popularList.innerHTML = html;
+        const popularTitle = popularSection.querySelector('.suggestions-title');
+        if (popularTitle) {
+          popularTitle.textContent = 'Search results';
+        }
+      }
+      recentSection.classList.add('hidden');
+      suggestions.style.display = 'block';
+    } else {
+      suggestions.style.display = 'none';
+    }
+  }
+
+  // Поиск
+  const searchInput = document.getElementById('search');
+  if (searchInput) {
+    searchInput.addEventListener('input', e => {
+      const val = e.target.value;
+      const valLower = val.toLowerCase();
+      
+      renderSearchSuggestions(val);
+      
+      if (val === '') {
+        animateMenuChange(() => applyFilters());
+        return;
+      }
+      
+      animateMenuChange(() => {
+        const filtered = menu.filter(i => 
+          i.name.toLowerCase().includes(valLower) || 
+          i.desc.toLowerCase().includes(valLower) ||
+          i.ingr.toLowerCase().includes(valLower)
+        );
+        renderMenu(filtered);
+      });
+    });
+    
+    searchInput.addEventListener('focus', () => {
+      renderSearchSuggestions(searchInput.value);
+    });
+    
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = searchInput.value.trim();
+        if (val) {
+          addToRecentSearches(val);
+          hideSuggestions();
+        }
+      }
+    });
+  }
+  
+  // Закрытие подсказок при клике вне
+  document.addEventListener('click', (e) => {
+    const searchContainer = document.querySelector('.search-container');
+    const suggestions = document.getElementById('search-suggestions');
+    if (searchContainer && suggestions && !searchContainer.contains(e.target)) {
+      hideSuggestions();
+    }
+  });
+
+  // Быстрое добавление в корзину
+  function addToCart(id) {
+    event.stopPropagation();
+    const item = menu.find(i => i.id === id);
+    if (!item) return;
+    
+    const existingIndex = cart.findIndex(i => i.id === id);
+    
+    if (existingIndex !== -1) {
+      if (!cart[existingIndex].quantity) cart[existingIndex].quantity = 1;
+      cart[existingIndex].quantity++;
+    } else {
+      cart.push({...item, quantity: 1});
+    }
+    
+    saveCart();
+    updateCart();
+    
+    // Анимация добавления
+    const button = event.target.closest('.quick-add');
+    if (button) {
+      button.innerHTML = '<i class="fas fa-check"></i>';
+      button.style.background = '#4CAF50';
+      setTimeout(() => {
+        button.innerHTML = '<i class="fas fa-plus"></i>';
+        button.style.background = 'var(--accent)';
+      }, 1000);
+    }
+    
+    showNotification(`${item.name} added to cart!`);
+  }
+
+  // Модальное окно
+  function showModal(item) {
+    currentDish = item;
+    document.getElementById('modal-img').src = item.img;
+    document.getElementById('modal-name').textContent = item.name;
+    document.getElementById('modal-desc').textContent = item.desc;
+    document.getElementById('modal-kcal').textContent = item.kcal + ' kcal';
+    document.getElementById('modal-weight').textContent = item.weight;
+    document.getElementById('modal-time').textContent = item.time;
+    
+    // Обновляем заголовки модального окна
+    document.getElementById('modal-kcal-label').textContent = 'Calories';
+    document.getElementById('modal-weight-label').textContent = 'Weight';
+    document.getElementById('modal-time-label').textContent = 'Time';
+    document.getElementById('modal-difficulty-label').textContent = 'Difficulty';
+    document.getElementById('modal-ingr-label').textContent = 'Ingredients';
+    
+    // Переводим сложность
+    let difficulty = item.difficulty;
+    if (difficulty === 'Легко' || difficulty === 'Easy') difficulty = 'Easy';
+    else if (difficulty === 'Средне' || difficulty === 'Medium') difficulty = 'Medium';
+    else if (difficulty === 'Сложно' || difficulty === 'Hard') difficulty = 'Hard';
+    document.getElementById('modal-difficulty').textContent = difficulty;
+    document.getElementById('modal-ingr').textContent = item.ingr;
+    
+    // Обновляем тексты отзывов
+    document.getElementById('reviews-title').innerHTML = 'Reviews (<span id="reviews-count">0</span>)';
+    document.getElementById('add-review-text').textContent = 'Add review';
+    document.getElementById('clear-reviews-btn').textContent = 'Clear all reviews for this dish';
+    document.getElementById('leave-review-title').textContent = 'Leave a review';
+    document.getElementById('review-text').placeholder = 'Share your opinion about the dish...';
+    document.getElementById('submit-review-btn').textContent = 'Submit review';
+    document.getElementById('modal-add-text').textContent = 'Add';
+    
+    // Обновляем иконку избранного
+    const favIcon = document.getElementById('modal-favorite-icon');
+    if (favorites.includes(item.id)) {
+      favIcon.style.color = '#ff6b6b';
+    } else {
+      favIcon.style.color = 'white';
+    }
+    
+    // Загружаем и показываем отзывы
+    loadReviews(item.id);
+    
+    document.getElementById('modal').classList.remove('hidden');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.add('hidden');
+  }
+
+  function addFromModal() {
+    if (currentDish) {
+      addToCart(currentDish.id);
+      closeModal();
+    }
+  }
+
+  // Загрузка отзывов для блюда
+  async function loadReviews(dishId) {
+    const reviewsList = document.getElementById('reviews-list');
+    const reviewsCount = document.getElementById('reviews-count');
+    
+    if (!reviewsList || !reviewsCount) return;
+
+    // Индикатор загрузки
+    reviewsList.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Loading reviews...</p></div>';
+    reviewsCount.textContent = '0';
+
+    // Если в кэше ещё нет отзывов по этому блюду, пробуем догрузить только их из Firestore
+    if ((!reviews[dishId] || reviews[dishId].length === 0) && window.firebaseDb) {
+      try {
+        const colRef = window.firebaseCollection
+          ? window.firebaseCollection(window.firebaseDb, 'reviews')
+          : window.firebaseDb.collection('reviews');
+
+        const queryRef = (window.firebaseQuery && window.firebaseWhere && window.firebaseOrderBy)
+          ? window.firebaseQuery(
+              colRef,
+              window.firebaseWhere('dishId', '==', dishId),
+              window.firebaseOrderBy('createdAt', 'desc')
+            )
+          : colRef.where('dishId', '==', dishId).orderBy('createdAt', 'desc');
+
+        const snap = await (window.firebaseGetDocs
+          ? window.firebaseGetDocs(queryRef)
+          : queryRef.get());
+
+        const dishReviews = [];
+        snap.forEach(doc => {
+          const data = doc.data();
+          if (!data) return;
+
+          let isoDate;
+          const createdAt = data.createdAt;
+          if (createdAt && typeof createdAt.toDate === 'function') {
+            isoDate = createdAt.toDate().toISOString();
+          } else if (typeof createdAt === 'string') {
+            isoDate = createdAt;
+          } else {
+            isoDate = new Date().toISOString();
+          }
+
+          dishReviews.push({
+            id: doc.id,
+            author: data.author || 'Anonymous user',
+            rating: Number(data.rating) || 0,
+            text: data.text || '',
+            date: isoDate
+          });
+        });
+
+        reviews[dishId] = dishReviews;
+        saveReviews();
+      } catch (err) {
+        console.error('Error loading dish reviews from Firestore:', err);
+      }
+    }
+
+    if (!reviews[dishId] || reviews[dishId].length === 0) {
+      reviewsList.innerHTML = '<div class="no-reviews"><p>No reviews yet. Be the first!</p></div>';
+      reviewsCount.textContent = '0';
+      return;
+    }
+    
+    let reviewsHTML = '';
+    reviews[dishId].forEach((review, index) => {
+      const date = new Date(review.date).toLocaleDateString('en-US');
+      reviewsHTML += `
+        <div class="review-item">
+          <div class="review-header">
+            <div>
+              <div class="review-author">${review.author}</div>
+              <div class="review-date">${date}</div>
+            </div>
+            <button class="review-delete-btn" onclick="deleteReview(${dishId}, ${index})" title="Delete review">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+          <div class="review-rating">${renderStars(review.rating)}</div>
+          <div class="review-text">${review.text}</div>
+        </div>
+      `;
+    });
+    
+    reviewsList.innerHTML = reviewsHTML;
+    reviewsCount.textContent = reviews[dishId].length;
+  }
+  
+  async function deleteReview(dishId, index) {
+    if (!reviews[dishId]) return;
+
+    const review = reviews[dishId][index];
+    if (review && review.id) {
+      await deleteReviewFromDb(review.id);
+    }
+
+    reviews[dishId].splice(index, 1);
+    if (reviews[dishId].length === 0) {
+      delete reviews[dishId];
+    }
+    saveReviews();
+    await loadReviews(dishId);
+    // Обновляем меню, чтобы пересчитать средний рейтинг
+    renderMenu();
+    showNotification('Review deleted');
+  }
+
+  // Показать форму отзыва
+  function showReviewForm() {
+    document.getElementById('review-form').classList.remove('hidden');
+  }
+
+  // Отправить отзыв
+  async function submitReview() {
+    const ratingInput = document.querySelector('input[name="rating"]:checked');
+    const reviewTextEl = document.getElementById('review-text');
+    const reviewText = reviewTextEl ? reviewTextEl.value.trim() : '';
+    
+    if (!ratingInput) {
+      showNotification('Please select a rating');
+      return;
+    }
+    
+    if (!reviewText) {
+      showNotification('Please write a review');
+      return;
+    }
+    
+    const rating = parseInt(ratingInput.value);
+    const author = (currentUser && currentUser.name) || localStorage.getItem('edenUserName') || 'Anonymous user';
+    const dishId = currentDish && currentDish.id;
+    if (!dishId) {
+      showNotification('Unknown dish');
+      return;
+    }
+
+    const reviewObj = {
+      author,
+      rating,
+      text: reviewText,
+      date: new Date().toISOString()
+    };
+
+    try {
+      // Сохраняем отзыв в Firestore, чтобы его видели другие пользователи
+      const docId = await saveReviewToDb(dishId, reviewObj);
+
+      // Обновляем локальный кэш
+      if (!reviews[dishId]) {
+        reviews[dishId] = [];
+      }
+      reviews[dishId].unshift({
+        ...reviewObj,
+        id: docId || (reviews[dishId][0] && reviews[dishId][0].id) || undefined
+      });
+
+      saveReviews();
+
+      // Обновляем отзывы и меню
+      await loadReviews(dishId);
+      renderMenu();
+
+      // Скрываем форму
+      document.getElementById('review-form').classList.add('hidden');
+      
+      // Очищаем форму
+      document.querySelectorAll('input[name="rating"]').forEach(input => input.checked = false);
+      if (reviewTextEl) {
+        reviewTextEl.value = '';
+      }
+      
+      showNotification('Thank you for your review!');
+    } catch (err) {
+      console.error('Error submitting review:', err);
+      showNotification('Error saving review. Please try again.');
+    }
+  }
+  
+  async function clearReviewsCurrentDish() {
+    if (!currentDish) {
+      return;
+    }
+    if (!reviews[currentDish.id] || reviews[currentDish.id].length === 0) {
+      showNotification('No reviews for this dish yet');
+      return;
+    }
+
+    const dishId = currentDish.id;
+
+    // Удаляем отзывы из Firestore
+    await clearReviewsForDishInDb(dishId);
+
+    // Очищаем локальный кэш
+    delete reviews[dishId];
+    saveReviews();
+
+    await loadReviews(dishId);
+    renderMenu();
+    showNotification('All reviews for this dish deleted');
+  }
+
+  // Избранное
+  function toggleFavorite(id) {
+    event.stopPropagation();
+    const index = favorites.indexOf(id);
+    
+    if (index === -1) {
+      favorites.push(id);
+      showNotification('Added to favorites ❤️');
+    } else {
+      favorites.splice(index, 1);
+      showNotification('Removed from favorites');
+    }
+    
+    saveFavorites();
+    
+    // Обновляем иконку в модальном окне
+    if (currentDish && currentDish.id === id) {
+      const favIcon = document.getElementById('modal-favorite-icon');
+      if (favorites.includes(id)) {
+        favIcon.style.color = '#ff6b6b';
+      } else {
+        favIcon.style.color = 'white';
+      }
+    }
+  }
+
+  function showFavorites() {
+    const modal = document.getElementById('favorites-modal');
+    const list = document.getElementById('favorites-list');
+    const modalTitle = modal.querySelector('h2');
+    if (modalTitle) modalTitle.innerHTML = '<i class="fas fa-heart" style="color: #ff6b6b;"></i> Favorites';
+    
+    if (favorites.length === 0) {
+      list.innerHTML = '<div class="empty-cart"><p>No favorites yet</p></div>';
+    } else {
+      let html = '<div class="menu" style="grid-template-columns: 1fr; gap: 1rem;">';
+      favorites.forEach(favId => {
+        const item = menu.find(i => i.id === favId);
+        if (item) {
+          html += `
+            <div class="dish-card" style="display: flex; align-items: center; gap: 1rem; cursor: default;">
+              <img src="${item.img}" alt="${item.name}" style="width: 80px; height: 80px; border-radius: 12px;">
+              <div style="flex: 1;">
+                <h4 style="margin: 0 0 0.5rem;">${item.name}</h4>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="dish-price">${item.price} $</span>
+                  <div>
+                    <button onclick="addToCart(${item.id})" style="background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">
+                      <i class="fas fa-cart-plus"></i>
+                    </button>
+                    <button onclick="toggleFavorite(${item.id})" style="background: #ffebee; color: #ff6b6b; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; margin-left: 0.5rem;">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      });
+      html += '</div>';
+      list.innerHTML = html;
+    }
+    
+    modal.classList.remove('hidden');
+  }
+
+  function closeFavorites() {
+    document.getElementById('favorites-modal').classList.add('hidden');
+  }
+
+  // Уведомления
+  function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--mint);
+      color: var(--text);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      z-index: 1001;
+      animation: slideInRight 0.3s, fadeOut 0.3s 2.7s;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+
+  // Корзина
+  function toggleCart() {
+    document.getElementById('cart').classList.toggle('open');
+  }
+
+  function updateCart() {
+    const cartItems = document.getElementById('cart-items');
+    const cartTotal = document.getElementById('cart-total');
+    const cartBadge = document.getElementById('cart-badge');
+    
+    if (cart.length === 0) {
+      cartItems.innerHTML = '<div class="empty-cart"><p>Cart is empty</p><p>Add dishes from menu</p></div>';
+      cartTotal.textContent = '0 $';
+      cartBadge.textContent = '0';
+      return;
+    }
+    
+    let itemsHTML = '';
+    let total = 0;
+    let totalItems = 0;
+    
+    cart.forEach((item, index) => {
+      const itemTotal = item.price * (item.quantity || 1);
+      total += itemTotal;
+      totalItems += (item.quantity || 1);
+      
+      itemsHTML += `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <h4>${item.name}</h4>
+            <p>${item.price} $ × ${item.quantity || 1}</p>
+          </div>
+          <div class="cart-item-controls">
+            <div class="cart-item-qty">
+              <button class="qty-btn" onclick="updateQuantity(${index}, -1)">-</button>
+              <span>${item.quantity || 1}</span>
+              <button class="qty-btn" onclick="updateQuantity(${index}, 1)">+</button>
+            </div>
+            <button class="remove-item" onclick="removeItem(${index})">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    });
+    
+    cartItems.innerHTML = itemsHTML;
+    cartTotal.textContent = `${total} $`;
+    cartBadge.textContent = totalItems;
+  }
+
+  function updateQuantity(index, change) {
+    if (!cart[index].quantity) cart[index].quantity = 1;
+    
+    cart[index].quantity += change;
+    
+    if (cart[index].quantity < 1) {
+      cart.splice(index, 1);
+    }
+    
+    saveCart();
+    updateCart();
+  }
+
+  function removeItem(index) {
+    cart.splice(index, 1);
+    saveCart();
+    updateCart();
+    showNotification('Dish removed from cart');
+  }
+
+  // Кнопка "наверх"
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // История заказов
+  function renderOrders() {
+    const container = document.getElementById('orders-list');
+    const headerCounter = document.getElementById('orders-count-header');
+    const orders = JSON.parse(localStorage.getItem('edenOrders')) || [];
+
+    if (headerCounter) {
+      headerCounter.textContent = orders.length;
+    }
+
+    if (!container) return;
+
+    if (orders.length === 0) {
+      container.innerHTML = '<div class="empty-cart"><p>You haven\'t placed any orders yet.</p></div>';
+      return;
+    }
+
+    // Показываем последние заказы (до 5)
+    const recent = orders.slice(-5).reverse();
+
+    let html = '';
+    recent.forEach(order => {
+      const items = order.items.map(i => `${i.name} × ${i.quantity}`).join(', ');
+      html += `
+        <div style="padding: 0.9rem 0; border-bottom: 1px solid #f3f4f6;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap: 0.75rem;">
+            <div>
+              <div style="font-weight:600; font-size:0.95rem;">Order ${order.number}</div>
+              <div style="font-size:0.8rem; color: var(--text-light); margin-top:0.1rem;">${order.date}</div>
+              <div style="font-size:0.85rem; margin-top:0.35rem;">${items}</div>
+            </div>
+            <div style="text-align:right; white-space:nowrap;">
+              <div style="font-weight:700;">${order.total} $</div>
+              <div style="font-size:0.8rem; color: var(--text-light); margin-top:0.1rem;">${order.items.length} items</div>
+            </div>
+          </div>
+          ${order.comment ? `<div style="font-size:0.8rem; color: var(--text-light); margin-top:0.45rem;">Comment: ${order.comment}</div>` : ''}
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  function showOrders() {
+    const modal = document.getElementById('orders-modal');
+    if (modal) {
+      const title = modal.querySelector('h2');
+      if (title) title.innerHTML = '<i class="fas fa-receipt" style="color: var(--accent);"></i> Order history';
+      const desc = modal.querySelector('p');
+      if (desc) desc.textContent = 'Your recent orders on this device are saved here.';
+      const clearBtn = modal.querySelector('button[onclick="clearOrders()"]');
+      if (clearBtn) clearBtn.textContent = 'Clear history';
+    }
+    renderOrders();
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeOrders() {
+    const modal = document.getElementById('orders-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function clearOrders() {
+    localStorage.removeItem('edenOrders');
+    const headerCounter = document.getElementById('orders-count-header');
+    if (headerCounter) {
+      headerCounter.textContent = '0';
+    }
+    const container = document.getElementById('orders-list');
+    if (container) {
+      container.innerHTML = '<div class="empty-cart"><p>Order history cleared.</p></div>';
+    }
+    showNotification('Order history cleared');
+  }
+
+  // Оформление заказа
+  function showCheckout() {
+    if (cart.length === 0) {
+      showNotification('Add dishes to cart before checkout');
+      return;
+    }
+    const checkoutModal = document.getElementById('checkout');
+    const title = checkoutModal.querySelector('h2');
+    if (title) title.textContent = 'Checkout';
+    const nameInput = document.getElementById('name');
+    const phoneInput = document.getElementById('phone');
+    const addressInput = document.getElementById('address');
+    const commentInput = document.getElementById('comment');
+    
+    // Fill in name if saved
+    const savedName = localStorage.getItem('edenUserName');
+    if (nameInput) {
+      if (savedName) {
+        nameInput.value = savedName;
+        nameInput.placeholder = 'Your name';
+      } else {
+        nameInput.value = '';
+        nameInput.placeholder = 'Your name';
+      }
+    }
+    
+    if (phoneInput) {
+      phoneInput.placeholder = 'Phone';
+      phoneInput.value = '';
+      // Разрешаем только цифры в поле телефона
+      phoneInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+      });
+      // Предотвращаем вставку нецифровых символов
+      phoneInput.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text');
+        this.value = paste.replace(/[^0-9]/g, '');
+      });
+      // Предотвращаем ввод нецифровых символов с клавиатуры
+      phoneInput.addEventListener('keypress', function(e) {
+        if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+          e.preventDefault();
+        }
+      });
+    }
+    if (addressInput) addressInput.placeholder = 'Delivery address';
+    if (commentInput) commentInput.placeholder = 'Order comment';
+    const submitBtn = checkoutModal.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-check"></i> Confirm order';
+    checkoutModal.classList.remove('hidden');
+    toggleCart();
+  }
+
+  function closeCheckout() {
+    document.getElementById('checkout').classList.add('hidden');
+  }
+
+  function submitOrder(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const comment = document.getElementById('comment').value.trim();
+    
+    if (!name || !phone || !address) {
+      showNotification('Заполните обязательные поля: имя, телефон и адрес');
+      return;
+    }
+    
+    // Сохраняем имя пользователя для отзывов и будущих заказов
+    localStorage.setItem('edenUserName', name);
+    if (currentUser) {
+      currentUser.name = name;
+      localStorage.setItem('edenUser', JSON.stringify(currentUser));
+      updateAuthUI();
+    }
+    
+    // Подготовка данных заказа
+    const orderNumber = 'EDN-' + Date.now().toString().slice(-6);
+    const order = {
+      number: orderNumber,
+      name,
+      phone,
+      address,
+      comment,
+      items: cart.map(item => ({
+        name: item.name,
+        quantity: item.quantity || 1,
+        price: item.price
+      })),
+      total: cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0),
+      date: new Date().toLocaleString('en-US')
+    };
+    
+    // Сохраняем заказ в localStorage
+    const orders = JSON.parse(localStorage.getItem('edenOrders')) || [];
+    orders.push(order);
+    localStorage.setItem('edenOrders', JSON.stringify(orders));
+    // Обновляем индикатор заказов в шапке
+    renderOrders();
+    
+    // Показываем подтверждение
+    const successModal = document.getElementById('order-success');
+    const orderNumberEl = document.getElementById('order-number');
+    const orderSuccessMessage = document.getElementById('order-success-message');
+    const continueBtn = successModal.querySelector('button');
+    
+    if (orderNumberEl) orderNumberEl.textContent = orderNumber;
+    if (orderSuccessMessage) {
+      orderSuccessMessage.textContent = `Thank you, ${name}! Your order #${orderNumber} has been accepted. We will call ${phone} to confirm.`;
+    }
+    if (successModal.querySelector('h2')) successModal.querySelector('h2').textContent = 'Order accepted!';
+    if (successModal.querySelector('p:first-of-type')) {
+      const p = successModal.querySelector('p:first-of-type');
+      if (p && p.id !== 'order-success-message') p.textContent = 'Thank you for your order! We will contact you within 15 minutes.';
+    }
+    if (successModal.querySelector('p strong').previousSibling) {
+      successModal.querySelector('p strong').previousSibling.textContent = 'Your order number: ';
+    }
+    if (continueBtn) continueBtn.textContent = 'Continue shopping';
+    
+    closeCheckout();
+    successModal.classList.remove('hidden');
+    
+    // Очищаем корзину
+    cart = [];
+    saveCart();
+    updateCart();
+    
+    // Очищаем форму
+    document.getElementById('name').value = '';
+    document.getElementById('phone').value = '';
+    document.getElementById('address').value = '';
+    document.getElementById('comment').value = '';
+  }
+
+  function closeOrderSuccess() {
+    document.getElementById('order-success').classList.add('hidden');
+  }
+
+  // Закрытие модальных окон по клику вне
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal')) {
+      closeModal();
+      closeCheckout();
+      closeFavorites();
+      closeOrderSuccess();
+      closeOrders();
+    }
+    if (e.target.classList.contains('name-modal')) {
+      closeNameModal();
+    }
+  });
+
+  // Показ / скрытие кнопки "наверх"
+  window.addEventListener('scroll', () => {
+    const btn = document.getElementById('scroll-top');
+    if (!btn) return;
+    if (window.scrollY > 300) {
+      btn.classList.remove('hidden');
+    } else {
+      btn.classList.add('hidden');
+    }
+  });
+
+  // Инициализация
+  document.addEventListener('DOMContentLoaded', () => {
+    renderMenu();
+    updateCart();
+    setupDietFilters();
+    
+    // Инициализация отзывов: теперь берём их из Firestore,
+    // чтобы отзывы были общими для всех пользователей
+    reviews = {};
+    // Загружаем все отзывы в фоне (если Firebase инициализирован)
+    syncReviewsFromDb();
+    
+    // Инициализация избранного если его нет
+    if (!localStorage.getItem('edenFavorites')) {
+      localStorage.setItem('edenFavorites', JSON.stringify([]));
+    }
+    favorites = JSON.parse(localStorage.getItem('edenFavorites')) || [];
+    
+    // Восстанавливаем пользователя из localStorage (fallback)
+    currentUser = JSON.parse(localStorage.getItem('edenUser')) || null;
+    updateAuthUI();
+    
+    // Слушаем изменения состояния аутентификации Firebase
+    if (window.firebaseAuth && window.onAuthStateChanged) {
+      window.onAuthStateChanged(window.firebaseAuth, (firebaseUser) => {
+        if (firebaseUser) {
+          // Пользователь авторизован в Firebase
+          const user = {
+            uid: firebaseUser.uid,
+            name: firebaseUser.displayName || localStorage.getItem('edenUserName') || 'User',
+            email: firebaseUser.email,
+            picture: firebaseUser.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(firebaseUser.displayName || 'User') + '&background=a8e6cf&color=2e2e2e&size=128'
+          };
+          setCurrentUser(user);
+          if (firebaseUser.displayName && !localStorage.getItem('edenUserName')) {
+            localStorage.setItem('edenUserName', firebaseUser.displayName);
+          }
+        } else {
+          // Пользователь не авторизован
+          currentUser = null;
+          localStorage.removeItem('edenUser');
+          updateAuthUI();
+        }
+      });
+    }
+
+    // Применяем сохранённую тему
+    currentTheme = localStorage.getItem('edenTheme') || 'light';
+    applyTheme();
+
+    // Обновляем счётчик заказов в шапке
+    renderOrders();
+    
+    // Инициализация подсказок поиска
+    renderPopularSuggestions();
+    renderRecentSearches();
+    
+    // Ограничение ввода только цифр в поле телефона (глобально)
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+      phoneInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+      });
+      phoneInput.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text');
+        this.value = paste.replace(/[^0-9]/g, '');
+      });
+      phoneInput.addEventListener('keypress', function(e) {
+        if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+          e.preventDefault();
+        }
+      });
+    }
+    
+    // Анимация для карточек при загрузке
+    setTimeout(() => {
+      document.querySelectorAll('.dish-card').forEach((card, i) => {
+        card.style.animationDelay = `${i * 0.05}s`;
+        card.style.animation = 'cardAppear 0.5s ease forwards';
+      });
+    }, 100);
+  });
+</script>
+
+<!-- Firebase SDK (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+  // Конфигурация Firebase (eden-36e95)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBEPBzcTir3I8meF6c9_NYRDcRJe9j3jW4",
+    authDomain: "eden-36e95.firebaseapp.com",
+    projectId: "eden-36e95",
+    storageBucket: "eden-36e95.firebasestorage.app",
+    messagingSenderId: "52400104172",
+    appId: "1:52400104172:web:9b8ec71d46dd61500cfbc9",
+    measurementId: "G-L6WHRRE7GE"
+  };
+
+  // Инициализация Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+  // Экспорт/обёртки для использования в основном скрипте (совместимость)
+  window.firebaseAuth = auth;
+  window.firebaseDb = db;
+  window.googleProvider = googleProvider;
+  window.firebaseSignInWithPopup = (authObj, provider) => authObj.signInWithPopup(provider);
+  window.firebaseSignOut = (authObj) => authObj.signOut();
+  window.onAuthStateChanged = (authObj, cb) => authObj.onAuthStateChanged(cb);
+
+  // Минимальные хелперы в стиле v9 (если они где-то используются)
+  window.firebaseCollection = (dbObj, path) => dbObj.collection(path);
+  window.firebaseAddDoc = (collectionRef, data) => collectionRef.add(data);
+  window.firebaseGetDocs = (queryOrCollectionRef) => queryOrCollectionRef.get();
+  window.firebaseWhere = (field, op, value) => ({ __type: 'where', field, op, value });
+  window.firebaseOrderBy = (field, direction) => ({ __type: 'orderBy', field, direction: direction || 'asc' });
+  window.firebaseQuery = (collectionRef, ...constraints) => {
+    let ref = collectionRef;
+    (constraints || []).forEach((c) => {
+      if (!c || !c.__type) return;
+      if (c.__type === 'where') ref = ref.where(c.field, c.op, c.value);
+      if (c.__type === 'orderBy') ref = ref.orderBy(c.field, c.direction);
+    });
+    return ref;
+  };
+  window.firebaseServerTimestamp = () => firebase.firestore.FieldValue.serverTimestamp();
+
+  // --- ФУНКЦИЯ РЕГИСТРАЦИИ ---
+  window.register = function register(email, pass) {
+    return auth.createUserWithEmailAndPassword(email, pass)
+      .then(() => {
+        alert("Успешно зарегистрирован!");
+      })
+      .catch((error) => {
+        alert("Ошибка: " + error.message);
+        throw error;
+      });
+  }
+
+  // --- ФУНКЦИЯ СОХРАНЕНИЯ ЗАКАЗА ---
+  window.createOrder = function createOrder(cartItems, price) {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Сначала нужно войти в аккаунт!");
+      return Promise.reject(new Error("User not signed in"));
+    }
+
+    return db.collection("orders").add({
+      uid: user.uid,
+      items: cartItems,
+      total: price,
+      status: "pending",
+      createdAt: new Date().toISOString()
+    })
+      .then(() => alert("Заказ сохранен!"));
+  }
+
+  // --- ФУНКЦИЯ ПОЛУЧЕНИЯ ИСТОРИИ ---
+  window.loadMyOrders = function loadMyOrders() {
+    const user = auth.currentUser;
+    if (!user) return Promise.resolve([]);
+
+    return db.collection("orders")
+      .where("uid", "==", user.uid)
+      .get()
+      .then((snapshot) => {
+        const orders = [];
+        snapshot.forEach(doc => {
+          orders.push({ id: doc.id, ...doc.data() });
+          console.log("Заказ из базы:", doc.data());
+        });
+        return orders;
+      });
+  }
+</script>
+</body>
+</html>
