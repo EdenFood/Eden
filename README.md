@@ -55,4 +55,11 @@ Kazakhstan
 ## Competition: 
 INFOMATRIX-ASIA 2026 (AI Hackathon)
 
+ ##  Links
+
+- **Live Demo:** [https://eden-36e95.web.app/](https://eden-36e95.web.app/)
+- **Video Presentation (YouTube):** [https://youtu.be/znToZZDIrbM](https://youtu.be/znToZZDIrbM)
+- **Documentation:** [Google Docs](https://docs.google.com/document/d/1DqUjxTIi5iSvU5mhDXXLAmX8uxz24R0Q/edit?usp=sharing&ouid=100524480413072786465&rtpof=true&sd=true)
+- **GitHub Repository:** [https://github.com/your-username/eden](https://github.com/your-username/eden)
+
 
