@@ -39,5 +39,9 @@ https://eden-36e95.web.app/
 ## Project Status
 EDEN is developed as a working MVP. AI features and advanced analytics are not yet implemented and are planned for future development.
 
+## Team members:
+Sagadi Sultan(9C)
+Aubakirov Alihan(9C)
+
 
 
