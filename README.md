@@ -43,5 +43,16 @@ EDEN is developed as a working MVP. AI features and advanced analytics are not y
 Sagadi Sultan(9C)
 Aubakirov Alihan(9C)
 
+## School:
+Nazarbayev Intellectual School of Science and Mathematics in Taldykorgan
+
+## City:
+Taldykorgan
+
+## Country:
+Kazakhstan
+
+## Competition: 
+INFOMATRIX-ASIA 2026 (AI Hackathon)
 
 
